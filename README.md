@@ -73,7 +73,4 @@ Car rental reservation application designed to offer a wide selection of campers
     API_KEY=your_api_key_here
    ```
 
-Admin Login Password & Email
 
-rubel29879@gmail.com
-password1234
