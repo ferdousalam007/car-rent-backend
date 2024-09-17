@@ -40,7 +40,7 @@ Car rental reservation application designed to offer a wide selection of campers
 
 1. Clone the repository:
 
-- git clone https://github.com/princeRubel1/Car-Rental-Reservation-Client
+- git clone
 
 2. Install frontend dependencies:
 
@@ -49,7 +49,7 @@ Car rental reservation application designed to offer a wide selection of campers
 
 # Backend
 
-1. git clone https://github.com/princeRubel1/princeRubel1-Car-Rental-Reservation-System-Backend
+1. git clone 
 
 2. Install frontend dependencies:
 
