@@ -33,6 +33,10 @@ router.post(
   validateRequest(AuthValidation.refreshTokenValidationSchema),
   AuthController.refreshTokenFromDB
 );
+//forgot password
+router.post("/forgot-password", AuthController.forgotPassword);
+//reset password
+router.post("/reset-password/:id/:token", AuthController.resetPassword);
 router.put(
   "/user-update",
   Auth(USER_ROLE.admin, USER_ROLE.user),

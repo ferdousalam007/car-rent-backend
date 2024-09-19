@@ -9,7 +9,7 @@ import config from "../../config";
 import { verifyToken } from "./auth.constant";
 import cloudinary from "../../utils/sendImageToCloudinary";
 import { v4 as uuidv4 } from 'uuid';
-
+import nodemailer from 'nodemailer';
 const createSignUp = async (req: any, res: any) => {
   const payload: TUser = req.body;
   // Checking if the user already exists
@@ -83,10 +83,63 @@ const createSignIn = async (payload: TSignInUser) => {
     accessToken: accessToken,
   };
 };
+const forgotPasswordIntoDB = async (email: string) => {
+ 
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
+  }
+  const jwtPayload = {
+    userId: user._id,
+    userEmail: user.email,
+  };
+  const token = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: "40m",
+  });
+  const transporter=nodemailer.createTransport({
+    service:'gmail',
+    auth:{
+      user:config.email,
+      pass:config.email_password
+    }
+  });
+  const mailOptions={
+    from:config.email,
+    to:email,
+    subject:'Reset your password',
+    text: `Click the following link to reset your password: ${config.reset_password_link}/${user._id}/${token}`
+  }
+  await transporter.sendMail(mailOptions,function(error:any,info:any){
+    if(error){
+      throw new AppError(httpStatus.NOT_FOUND,"Something went wrong")
+    }
+    else{
+      // eslint-disable-next-line no-console
+      console.log('Email sent: '+info.response)
+    }
+  });
+};
+const resetPasswordIntoDB = async (token: string, password: string) => {
+  const decoded = verifyToken(token, config.jwt_access_secret as string);
+  const { userId } = decoded;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
+  }
+  user.password = password;
+  await user.save();
+  return user;
+};
+
+
 const getAllUserInDB = async () => {
   const result = await User.find();
   return result;
 };
+
+
+
 const refreshTokenIntoDB = async (token: string) => {
   // check if the token is valid
   const decoded = verifyToken(token, config.jwt_refresh_secret as string);
@@ -110,6 +163,7 @@ const refreshTokenIntoDB = async (token: string) => {
     accessToken,
   };
 };
+
 const updateUserIntoDB = async (userEmail: string, payload: Partial<TUser>, req: any, res: any) => {
   const user = await User.findOne({ email: userEmail });
 
@@ -186,4 +240,6 @@ export const AuthService = {
   getMeIntoDB,
   delelteUserIntoDB,
   toggleAdminRoleInDB,
+  forgotPasswordIntoDB,
+  resetPasswordIntoDB,
 };

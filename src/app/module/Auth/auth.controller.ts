@@ -47,7 +47,33 @@ const refreshTokenFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const result = await AuthService.forgotPasswordIntoDB(email);
 
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Password reset link sent to your email",
+    data: result,
+  });
+});
+const resetPassword = catchAsync(async (req, res) => {
+
+
+
+  const { password,token } = req.body.body;
+  // console.log(req.body);
+  // return
+  const result = await AuthService.resetPasswordIntoDB(token, password);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Password reset successfully",
+    data: result,
+  });
+});
 const getAllUserFromDB = catchAsync(async (req, res) => {
   const result = await AuthService.getAllUserInDB();
   sendResponse(res, {
@@ -108,4 +134,6 @@ export const AuthController = {
   getMeFromDB,
   deleteFromDB,
   makeAdmin,
+  forgotPassword,
+  resetPassword,
 };
