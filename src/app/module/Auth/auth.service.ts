@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from "../../error/AppError";
 import { TUser } from "../User/user.interface";
 import { User } from "../User/user.model";
@@ -6,22 +7,39 @@ import { TSignInUser } from "./auth.interface";
 import jwt from "jsonwebtoken";
 import config from "../../config";
 import { verifyToken } from "./auth.constant";
+import cloudinary from "../../utils/sendImageToCloudinary";
+import { v4 as uuidv4 } from 'uuid';
 
-const createSignUp = async (payload: TUser) => {
+const createSignUp = async (req: any, res: any) => {
+  const payload: TUser = req.body;
   // Checking if the user already exists
   const existingUser = await User.findOne({ email: payload.email });
   if (existingUser) {
     throw new AppError(httpStatus.CONFLICT, "User already exists!!");
   }
+  // Validate image file
+  if (!req.files || !req.files.image) {
+    return res.status(400).json({ message: 'Image file is required' });
+  }
+  const image = req.files.image as any;
+  const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+  if (!validExtensions.includes(image.mimetype)) {
+    return res
+      .status(400)
+      .json({ message: 'Only JPEG, JPG,webp and PNG files are allowed' });
+  }
+  const result = await cloudinary.uploader.upload(image.tempFilePath, {
+    folder: 'carRental/users',
+    public_id: uuidv4(),
+  });
 
   // Create new user object
-  const newUser = new User(payload);
+  const newUser = new User({
+    ...payload,
+    image: result.secure_url,
+  });
 
-  // Handling image upload
-  // const imageName = `${newUser._id}${payload.name}`;
-  // const path = file?.path;
-  // const { secure_url } = await sendImageToCloudinary(imageName, path);
-  //   newUser.image = secure_url;
 
   await newUser.save();
 
@@ -92,13 +110,28 @@ const refreshTokenIntoDB = async (token: string) => {
     accessToken,
   };
 };
-const updateUserIntoDB = async (userEmail: string, payload: Partial<TUser>) => {
+const updateUserIntoDB = async (userEmail: string, payload: Partial<TUser>, req: any, res: any) => {
   const user = await User.findOne({ email: userEmail });
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
   }
+  // Validate image file
+  if (req.files && req.files.image) {
+    const image = req.files.image as any;
+    const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
+    if (!validExtensions.includes(image.mimetype)) {
+      return res
+        .status(400)
+        .json({ message: 'Only JPEG, JPG,webp and PNG files are allowed' });
+    }
+    const result = await cloudinary.uploader.upload(image.tempFilePath, {
+      folder: 'carRental/users',
+      public_id: uuidv4(),
+    });
+    payload.image = result.secure_url;
+  }
   const result = await User.findByIdAndUpdate(user?._id, payload, {
     new: true,
     runValidators: true,

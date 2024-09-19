@@ -4,7 +4,9 @@ import sendResponse from "../../utils/sendResonse";
 import { FeedBackService } from "./feedBack.service";
 
 const createFeedBack = catchAsync(async (req, res) => {
-  const feedBack = await FeedBackService.createFeedBack(req.body);
+
+  const feedBack = await FeedBackService.createFeedBack(req.body,req,res);
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

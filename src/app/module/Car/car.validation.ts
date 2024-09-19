@@ -8,10 +8,7 @@ const carSchemaValidation = z.object({
     isElectric: z.boolean(),
     features: z.array(z.string()).nonempty("At least one feature is required"),
     pricePerHour: z.number().min(0, "Price per hour must be a positive number"),
-    carImgUrl: z
-      .string()
-      .url("Must be a valid URL")
-      .nonempty("At least one image URL is required"),
+    carImgUrl: z.any().optional(),
     vehicleSpecification: z
       .array(z.string())
       .nonempty("At least one vehicle specification is required"),
@@ -36,7 +33,7 @@ const updateCarSchema = z.object({
 
       .optional(),
 
-    carImgUrl: z.string().optional(),
+    carImgUrl: z.any().optional(),
     vehicleSpecification: z.array(z.string()).optional(),
     maxSeats: z
       .number()

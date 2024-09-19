@@ -3,5 +3,6 @@ export type TFeedBack = {
   message: string;
   rating: number;
   date: string;
-  profile: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image: any;
 };

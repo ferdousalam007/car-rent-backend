@@ -5,9 +5,9 @@ import sendResponse from "../../utils/sendResonse";
 import { AuthService } from "./auth.service";
 
 const signUp = catchAsync(async (req, res) => {
-  const userData = req.body;
+  // const userData = req.body;
 
-  const result = await AuthService.createSignUp(userData);
+  const result = await AuthService.createSignUp(req,res);
 
   sendResponse(res, {
     success: true,
@@ -60,7 +60,7 @@ const getAllUserFromDB = catchAsync(async (req, res) => {
 const updateUserFromDB = catchAsync(async (req, res) => {
   const { userEmail } = req.user;
 
-  const result = await AuthService.updateUserIntoDB(userEmail, req.body);
+  const result = await AuthService.updateUserIntoDB(userEmail, req.body,req,res);
   sendResponse(res, {
     success: true,
     statusCode: 200,

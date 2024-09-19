@@ -8,8 +8,33 @@ import { JwtPayload } from "jsonwebtoken";
 import { User } from "../User/user.model";
 import mongoose from "mongoose";
 import { calculateTotalPrice } from "./car.utils";
+import cloudinary from "../../utils/sendImageToCloudinary";
+import { v4 as uuidv4 } from 'uuid';
+const createCarIntoDB = async (req: any,res:any) => {
+  const parseCars: TCar = req.body;
+ 
+  if (!req.files || !req.files.images) {
+    return res.status(400).json({ message: 'Image files are required' });
+  }
 
-const createCarIntoDB = async (payload: TCar) => {
+  let images = req.files.images as any[]; // Type assertion to array
+  if (!Array.isArray(images)) {
+    images = [images];
+  }
+  const imageUrls = await Promise.all(
+    images.map(async (image: any) => {
+      const result = await cloudinary.uploader.upload(image.tempFilePath, {
+        folder: 'carRental/cars',
+        public_id: uuidv4(),
+      });
+      return result.secure_url;
+    }),
+  );
+  const payload = new Car({
+    ...parseCars,
+    images: imageUrls,
+  });
+  
   const result = await Car.create(payload);
   return result;
 };
@@ -53,31 +78,52 @@ const getSingleCarFromDB = async (id: string) => {
   const result = await Car.findById(id);
   return result;
 };
-const updateCarIntoDB = async (id: string, payload: Partial<TCar>) => {
-  const { vehicleSpecification, features, ...reemainingPayload } = payload;
-  const modifideUpdateData: Record<string, unknown> = {
-    ...reemainingPayload,
+const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => {
+  const { vehicleSpecification, features, ...remainingPayload } = payload;
+  const modifiedUpdateData: Record<string, unknown> = {
+    ...remainingPayload,
   };
-  // console.log("modifideUpdateData", modifideUpdateData);
-  // for features
+
+  // Handling features
   if (features && Object.keys(features).length) {
     for (const [key, value] of Object.entries(features)) {
-      modifideUpdateData[`features.${key}`] = value;
+      modifiedUpdateData[`features.${key}`] = value;
     }
   }
-  // for vehicleSpecification
+
+  // Handling vehicleSpecification
   if (vehicleSpecification && Object.keys(vehicleSpecification).length) {
     for (const [key, value] of Object.entries(vehicleSpecification)) {
-      modifideUpdateData[`vehicleSpecification.${key}`] = value;
+      modifiedUpdateData[`vehicleSpecification.${key}`] = value;
     }
   }
-  const result = await Car.findOneAndUpdate({ _id: id }, modifideUpdateData, {
+
+  // Handling images if they exist in the request
+  if (req.files && req.files.images) {
+    let images = req.files.images as any[];
+    if (!Array.isArray(images)) {
+      images = [images];
+    }
+    const imageUrls = await Promise.all(
+      images.map(async (image: any) => {
+        const result = await cloudinary.uploader.upload(image.tempFilePath, {
+          folder: 'carRental/cars',
+          public_id: uuidv4(),
+        });
+        return result.secure_url;
+      }),
+    );
+    modifiedUpdateData.images = imageUrls;
+  }
+
+  const result = await Car.findOneAndUpdate({ _id: id }, modifiedUpdateData, {
     new: true,
     runValidators: true,
   });
 
   return result;
 };
+
 const deleteCarFromDB = async (id: string) => {
   const result = await Car.findOneAndUpdate(
     { _id: id },

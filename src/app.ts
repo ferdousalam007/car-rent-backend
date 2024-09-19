@@ -4,20 +4,29 @@ import cors from "cors";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import notFound from "./app/middleware/notFound";
 import cookieParser from "cookie-parser";
-
+import fileUpload from 'express-fileupload';
 const app = express();
 
-//parser
-app.use(express.json());
-app.use(cookieParser());
+
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
       // "https://car-rental-reservation-client.vercel.app",
     ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
+);
+//parser
+app.use(express.json());
+app.use(cookieParser());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+  }),
 );
 //application route
 app.use("/api", router);

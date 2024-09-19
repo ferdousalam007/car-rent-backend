@@ -16,7 +16,7 @@ const feedBackSchema = new Schema<TFeedBack>({
     type: Number,
     required: [true, "Rating is required"],
   },
-  profile: {
+  image: {
     type: String,
     required: [true, "Profile is required"],
   },

@@ -7,7 +7,7 @@ const userValidationSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
     phone: z.string().min(1, { message: "Number is required" }),
     role: z.enum(["user", "admin"]).optional(),
-    image: z.string().min(1, { message: "Image is required" }).optional(),
+    image: z.any().optional(),
     // for future use, if we have address field in the database
     address: z.string().optional(),
   }),
@@ -17,7 +17,7 @@ const userUpdateValidationSchema = z.object({
     name: z.string().optional(),
     email: z.string().optional(),
     phone: z.string().optional(),
-    image: z.string().optional(),
+    image: z.any().optional(),
   }),
 });
 

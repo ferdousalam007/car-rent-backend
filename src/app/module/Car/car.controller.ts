@@ -5,7 +5,7 @@ import sendResponse from "../../utils/sendResonse";
 import { CarServices } from "./car.service";
 
 const createCar = catchAsync(async (req, res) => {
-  const result = await CarServices.createCarIntoDB(req.body);
+  const result = await CarServices.createCarIntoDB(req,res);
 
   sendResponse(res, {
     success: true,
@@ -51,7 +51,7 @@ const getSingleCar = catchAsync(async (req, res) => {
 });
 const updateCar = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await CarServices.updateCarIntoDB(id, req.body);
+  const result = await CarServices.updateCarIntoDB(id, req.body,req);
 
   sendResponse(res, {
     success: true,
