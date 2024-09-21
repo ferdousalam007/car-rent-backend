@@ -1,8 +1,9 @@
+import { Types } from "mongoose";
 export type TFeedBack = {
-  name: string;
+bookingId: Types.ObjectId;
   message: string;
   rating: number;
   date: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  image: any;
+  // image: any;
 };

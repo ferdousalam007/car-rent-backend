@@ -5,7 +5,7 @@ import { FeedBackService } from "./feedBack.service";
 
 const createFeedBack = catchAsync(async (req, res) => {
 
-  const feedBack = await FeedBackService.createFeedBack(req.body,req,res);
+  const feedBack = await FeedBackService.createFeedBack(req.body);
 
   sendResponse(res, {
     success: true,

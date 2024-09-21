@@ -5,6 +5,7 @@ import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import notFound from "./app/middleware/notFound";
 import cookieParser from "cookie-parser";
 import fileUpload from 'express-fileupload';
+import config from "./app/config";
 const app = express();
 
 
@@ -12,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      // "https://car-rental-reservation-client.vercel.app",
+      config.client_url as string,
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

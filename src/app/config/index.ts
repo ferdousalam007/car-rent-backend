@@ -21,4 +21,5 @@ export default {
   email: process.env.EMAIL,
   email_password: process.env.EMAIL_PASSWORD,
   reset_password_link: process.env.RESET_PASSWORD_LINK,
+  client_url: process.env.FRONTEND_URL,
 };
