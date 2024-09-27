@@ -41,7 +41,7 @@ const BookingCarFromDB = async (
     // Save the booking to the database
     const bookingData = await Booking.create([payload], { session });
     const result = bookingData[0];
-    await (await result.populate("user")).populate("car");
+    (await (await result.populate("user")).populate("car"));
 
     await session.commitTransaction();
     await session.endSession();

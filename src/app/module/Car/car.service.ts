@@ -10,14 +10,15 @@ import mongoose from "mongoose";
 import { calculateTotalPrice } from "./car.utils";
 import cloudinary from "../../utils/sendImageToCloudinary";
 import { v4 as uuidv4 } from 'uuid';
-const createCarIntoDB = async (req: any,res:any) => {
+const createCarIntoDB = async (req: any, res: any) => {
+
   const parseCars: TCar = req.body;
- 
-  if (!req.files || !req.files.images) {
+
+  if (!req.files || !req.files.carImgUrl) {
     return res.status(400).json({ message: 'Image files are required' });
   }
 
-  let images = req.files.images as any[]; // Type assertion to array
+  let images = req.files.carImgUrl as any[]; // Type assertion to array
   if (!Array.isArray(images)) {
     images = [images];
   }
@@ -32,9 +33,9 @@ const createCarIntoDB = async (req: any,res:any) => {
   );
   const payload = new Car({
     ...parseCars,
-    images: imageUrls,
+    carImgUrl: imageUrls,
   });
-  
+
   const result = await Car.create(payload);
   return result;
 };
@@ -79,6 +80,10 @@ const getSingleCarFromDB = async (id: string) => {
   return result;
 };
 const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => {
+  // console.log(payload, "payload");
+  // console.log(req.files, "req.files");
+  // console.log(id, "id");
+
   const { vehicleSpecification, features, ...remainingPayload } = payload;
   const modifiedUpdateData: Record<string, unknown> = {
     ...remainingPayload,
@@ -99,12 +104,13 @@ const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => 
   }
 
   // Handling images if they exist in the request
-  if (req.files && req.files.images) {
-    let images = req.files.images as any[];
+  if (req.files && req.files.carImgUrl) {
+    let images = req.files.carImgUrl as any[];
     if (!Array.isArray(images)) {
       images = [images];
     }
-    const imageUrls = await Promise.all(
+
+    const carImgUrl = await Promise.all(
       images.map(async (image: any) => {
         const result = await cloudinary.uploader.upload(image.tempFilePath, {
           folder: 'carRental/cars',
@@ -113,9 +119,12 @@ const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => 
         return result.secure_url;
       }),
     );
-    modifiedUpdateData.images = imageUrls;
+    modifiedUpdateData.carImgUrl = carImgUrl;
+  } else {
+    console.log("No image found, skipping image upload.");
   }
 
+  // Updating the car in the database
   const result = await Car.findOneAndUpdate({ _id: id }, modifiedUpdateData, {
     new: true,
     runValidators: true,
@@ -123,6 +132,7 @@ const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => 
 
   return result;
 };
+
 
 const deleteCarFromDB = async (id: string) => {
   const result = await Car.findOneAndUpdate(

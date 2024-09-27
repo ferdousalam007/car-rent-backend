@@ -68,7 +68,7 @@ const createSignIn = async (payload: TSignInUser) => {
   };
 
   const accessToken = jwt.sign(jwtPaylod, config.jwt_access_secret as string, {
-    expiresIn: "10m",
+    expiresIn: "60m",
   });
   const refreshToken = jwt.sign(
     jwtPaylod,

@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type TCar = {
   name: string;
   description: string;
@@ -10,7 +12,7 @@ export type TCar = {
   carImgUrl: string[];
   vehicleSpecification: string[];
   maxSeats: number;
-  rating: number;
+  rating: [Types.ObjectId];
   gearType: string;
   fuelType: string;
   carType: string;

@@ -8,6 +8,11 @@ const feedBackSchema = new Schema<TFeedBack>({
     ref: "Booking",
     required: [true, "Booking ID is required"],
   },
+  carId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Car",
+    required: [true, "Car ID is required"],
+  },
   message: {
     type: String,
     required: [true, "Message is required"],
@@ -16,10 +21,7 @@ const feedBackSchema = new Schema<TFeedBack>({
     type: Number,
     required: [true, "Rating is required"],
   },
-  // image: {
-  //   type: String,
-  //   required: [true, "Profile is required"],
-  // },
+  
   date: {
     type: String,
     required: true,

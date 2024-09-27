@@ -13,7 +13,7 @@ const carSchemaValidation = z.object({
       .array(z.string())
       .nonempty("At least one vehicle specification is required"),
     maxSeats: z.number().int().positive("Max seats must be a positive integer"),
-    rating: z.number().min(0).max(5, "Rating must be between 0 and 5"),
+    // rating: z.number().min(0).max(5, "Rating must be between 0 and 5"),
     gearType: z.string().min(1, "Gear type is required"),
     fuelType: z.string().min(1, "Fuel type is required"),
     carType: z.string().min(1, "Car type is required"),
@@ -25,12 +25,11 @@ const updateCarSchema = z.object({
     name: z.string().optional(),
     description: z.string().optional(),
     color: z.string().optional(),
-    isElectric: z.boolean().optional(),
+    isElectric: z.any().optional(),
     features: z.array(z.string()).optional(),
     isDelete: z.boolean().optional(),
     pricePerHour: z
-      .number()
-
+      .any()
       .optional(),
 
     carImgUrl: z.any().optional(),
@@ -39,10 +38,10 @@ const updateCarSchema = z.object({
       .number()
 
       .optional(),
-    rating: z
-      .number()
+    // rating: z
+    //   .any()
 
-      .optional(),
+    //   .optional(),
     gearType: z.string().optional(),
     fuelType: z.string().optional(),
     carType: z.string().optional(),

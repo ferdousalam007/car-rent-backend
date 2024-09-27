@@ -15,4 +15,5 @@ export type TBooking = {
   identityNo: string;
   drivingLicenseNo: string;
   isDeleted: boolean;
+  isRatings: boolean;
 };

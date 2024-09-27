@@ -48,10 +48,7 @@ const carSchema = new Schema<TCar>(
       type: Number,
       required: [true, "Max seats are required"],
     },
-    rating: {
-      type: Number,
-      default: 0,
-    },
+    rating: [{ type: Schema.Types.ObjectId, ref: "FeedBack", default: [] }],
     gearType: {
       type: String,
       required: [true, "Gear type is required"],

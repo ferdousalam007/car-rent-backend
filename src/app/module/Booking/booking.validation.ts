@@ -10,6 +10,7 @@ const BookingValidationSchema = z.object({
     identityNo: z.string().nonempty("Identity number is required"),
     drivingLicenseNo: z.string().nonempty("Driving license number is required"),
     isDeleted: z.boolean().default(false),
+    isRatings: z.boolean().default(false),
   }),
 });
 

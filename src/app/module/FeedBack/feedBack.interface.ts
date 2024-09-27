@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 export type TFeedBack = {
 bookingId: Types.ObjectId;
+carId: Types.ObjectId;
   message: string;
   rating: number;
   date: string;
