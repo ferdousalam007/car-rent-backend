@@ -12,32 +12,33 @@ import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
 const createSignUp = async (req: any, res: any) => {
   const payload: TUser = req.body;
+
   // Checking if the user already exists
   const existingUser = await User.findOne({ email: payload.email });
   if (existingUser) {
     throw new AppError(httpStatus.CONFLICT, "User already exists!!");
   }
   // Validate image file
-  if (!req.files || !req.files.image) {
-    return res.status(400).json({ message: 'Image file is required' });
-  }
-  const image = req.files.image as any;
-  const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  let result;
+  if (req.files && req.files.image) {
+    const image = req.files.image as any;
+    const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-  if (!validExtensions.includes(image.mimetype)) {
-    return res
-      .status(400)
-      .json({ message: 'Only JPEG, JPG,webp and PNG files are allowed' });
+    if (!validExtensions.includes(image.mimetype)) {
+      return res
+        .status(400)
+        .json({ message: 'Only JPEG, JPG,webp and PNG files are allowed' });
+    }
+    result = await cloudinary.uploader.upload(image.tempFilePath, {
+      folder: 'carRental/users',
+      public_id: uuidv4(),
+    });
   }
-  const result = await cloudinary.uploader.upload(image.tempFilePath, {
-    folder: 'carRental/users',
-    public_id: uuidv4(),
-  });
 
   // Create new user object
   const newUser = new User({
     ...payload,
-    image: result.secure_url,
+    image: result?.secure_url,
   });
 
 

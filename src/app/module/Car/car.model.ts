@@ -61,6 +61,10 @@ const carSchema = new Schema<TCar>(
       type: String,
       required: [true, "Car type is required"],
     },
+    avgRating: {
+      type: Number,
+      default: 0,
+    }
   },
   {
     timestamps: true,

@@ -16,6 +16,7 @@ export type TCar = {
   gearType: string;
   fuelType: string;
   carType: string;
+  avgRating: number;
 };
 export interface TSearchCriteria {
   carType: string;
