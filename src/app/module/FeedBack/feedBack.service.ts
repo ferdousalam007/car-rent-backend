@@ -173,10 +173,60 @@ const createFeedBack = async (payload: TFeedBack) => {
 };
 
 
+// const getAllFeedBacks = async () => {
+//   const result = await FeedBack.find()
+//   return result;
+// };
+// const getAllFeedBacks = async () => {
+//   const result = await FeedBack.find()
+//     .populate({
+//       path: 'bookingId',  
+//       populate: {
+//         path: 'user',     
+//         select: 'name image message rating',  
+//       },
+//     })
+//     // .select('car bookingId   date');  
+
+//   return result;
+// };
 const getAllFeedBacks = async () => {
-  const result = await FeedBack.find();
+  const result = await FeedBack.aggregate([
+    {
+      $lookup: {
+        from: 'bookings',            // Join with the Booking collection
+        localField: 'bookingId',     // Feedback's bookingId
+        foreignField: '_id',         // Booking's _id
+        as: 'bookingData',           // Alias for the joined data
+      },
+    },
+    { $unwind: '$bookingData' },     // Unwind the bookingData to deconstruct the array
+    {
+      $lookup: {
+        from: 'users',               // Join with the User collection
+        localField: 'bookingData.user',  // Booking's user field
+        foreignField: '_id',         // User's _id
+        as: 'userData',              // Alias for the joined data
+      },
+    },
+    { $unwind: '$userData' },        // Unwind the userData to deconstruct the array
+    {
+      $project: {
+        _id: 1,                      // Feedback ID
+        carId: 1,                    // Car ID
+        message: 1,                  // Feedback message
+        rating: 1,                   // Feedback rating
+        'userData.name': 1,          // User's name
+        'userData.image': 1,        
+      },
+    },
+  ]);
+
   return result;
 };
+
+
+
 
 export const FeedBackService = {
   createFeedBack,
