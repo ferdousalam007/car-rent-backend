@@ -48,10 +48,7 @@ const carSchema = new mongoose_1.Schema({
         type: Number,
         required: [true, "Max seats are required"],
     },
-    rating: {
-        type: Number,
-        default: 0,
-    },
+    rating: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "FeedBack", default: [] }],
     gearType: {
         type: String,
         required: [true, "Gear type is required"],
@@ -64,6 +61,10 @@ const carSchema = new mongoose_1.Schema({
         type: String,
         required: [true, "Car type is required"],
     },
+    avgRating: {
+        type: Number,
+        default: 0,
+    }
 }, {
     timestamps: true,
 });

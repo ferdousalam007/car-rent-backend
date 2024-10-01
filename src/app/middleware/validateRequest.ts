@@ -17,7 +17,7 @@ const parseData = (data: any) => {
   // Helper function to clean and parse string arrays
   const cleanAndParseArray = (str: string) => {
     return str
-      .replace(/[\[\]]/g, '') // Remove square brackets
+      .replace(/[[]]/g, '') // Remove square brackets
       .split(',')
       .map((item: string) => item.trim().replace(/["']/g, '')); // Trim and remove quotes
   };

@@ -31,22 +31,22 @@ const createSignUp = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         throw new AppError_1.default(http_status_1.default.CONFLICT, "User already exists!!");
     }
     // Validate image file
-    if (!req.files || !req.files.image) {
-        return res.status(400).json({ message: 'Image file is required' });
+    let result;
+    if (req.files && req.files.image) {
+        const image = req.files.image;
+        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!validExtensions.includes(image.mimetype)) {
+            return res
+                .status(400)
+                .json({ message: 'Only JPEG, JPG,webp and PNG files are allowed' });
+        }
+        result = yield sendImageToCloudinary_1.default.uploader.upload(image.tempFilePath, {
+            folder: 'carRental/users',
+            public_id: (0, uuid_1.v4)(),
+        });
     }
-    const image = req.files.image;
-    const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validExtensions.includes(image.mimetype)) {
-        return res
-            .status(400)
-            .json({ message: 'Only JPEG, JPG,webp and PNG files are allowed' });
-    }
-    const result = yield sendImageToCloudinary_1.default.uploader.upload(image.tempFilePath, {
-        folder: 'carRental/users',
-        public_id: (0, uuid_1.v4)(),
-    });
     // Create new user object
-    const newUser = new user_model_1.User(Object.assign(Object.assign({}, payload), { image: result.secure_url }));
+    const newUser = new user_model_1.User(Object.assign(Object.assign({}, payload), { image: result === null || result === void 0 ? void 0 : result.secure_url }));
     yield newUser.save();
     return newUser;
 });
@@ -69,7 +69,7 @@ const createSignIn = (payload) => __awaiter(void 0, void 0, void 0, function* ()
         role: user.role,
     };
     const accessToken = jsonwebtoken_1.default.sign(jwtPaylod, config_1.default.jwt_access_secret, {
-        expiresIn: "10m",
+        expiresIn: "60m",
     });
     const refreshToken = jsonwebtoken_1.default.sign(jwtPaylod, config_1.default.jwt_refresh_secret, {
         expiresIn: "10d",

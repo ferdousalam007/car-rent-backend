@@ -46,7 +46,7 @@ const BookingCarFromDB = (payload, user) => __awaiter(void 0, void 0, void 0, fu
         // Save the booking to the database
         const bookingData = yield booking_model_1.Booking.create([payload], { session });
         const result = bookingData[0];
-        yield (yield result.populate("user")).populate("car");
+        (yield (yield result.populate("user")).populate("car"));
         yield session.commitTransaction();
         yield session.endSession();
         return result;

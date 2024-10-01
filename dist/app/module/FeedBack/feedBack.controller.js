@@ -18,7 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResonse_1 = __importDefault(require("../../utils/sendResonse"));
 const feedBack_service_1 = require("./feedBack.service");
 const createFeedBack = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const feedBack = yield feedBack_service_1.FeedBackService.createFeedBack(req.body, req, res);
+    const feedBack = yield feedBack_service_1.FeedBackService.createFeedBack(req.body);
     (0, sendResonse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

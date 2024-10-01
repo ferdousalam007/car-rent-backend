@@ -19,7 +19,6 @@ const config_1 = __importDefault(require("../../config"));
 const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
-        unique: true,
         required: [true, "Name is required"],
     },
     password: {
@@ -33,6 +32,7 @@ const userSchema = new mongoose_1.Schema({
     },
     image: {
         type: String,
+        default: "https://res.cloudinary.com/dfsbi29k5/image/upload/v1727443863/carRental/users/4b31ebe6-1a12-4638-a9f5-a8d747936426.webp",
     },
     phone: {
         type: String,

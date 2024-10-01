@@ -16,7 +16,7 @@ const createSignUp = async (req: any, res: any) => {
   // Checking if the user already exists
   const existingUser = await User.findOne({ email: payload.email });
   if (existingUser) {
-    throw new AppError(httpStatus.CONFLICT, "User already exists!!");
+    throw new AppError(httpStatus.CONFLICT, "Email already registered");
   }
   // Validate image file
   let result;

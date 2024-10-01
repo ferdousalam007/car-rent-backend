@@ -37,6 +37,7 @@ const bookingSchema = new mongoose_1.Schema({
     identityNo: { type: String, required: true },
     drivingLicenseNo: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
+    isRatings: { type: Boolean, default: false },
 }, {
     timestamps: true,
 });

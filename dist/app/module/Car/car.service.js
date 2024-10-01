@@ -36,10 +36,10 @@ const sendImageToCloudinary_1 = __importDefault(require("../../utils/sendImageTo
 const uuid_1 = require("uuid");
 const createCarIntoDB = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parseCars = req.body;
-    if (!req.files || !req.files.images) {
+    if (!req.files || !req.files.carImgUrl) {
         return res.status(400).json({ message: 'Image files are required' });
     }
-    let images = req.files.images; // Type assertion to array
+    let images = req.files.carImgUrl; // Type assertion to array
     if (!Array.isArray(images)) {
         images = [images];
     }
@@ -50,7 +50,7 @@ const createCarIntoDB = (req, res) => __awaiter(void 0, void 0, void 0, function
         });
         return result.secure_url;
     })));
-    const payload = new car_model_1.Car(Object.assign(Object.assign({}, parseCars), { images: imageUrls }));
+    const payload = new car_model_1.Car(Object.assign(Object.assign({}, parseCars), { carImgUrl: imageUrls }));
     const result = yield car_model_1.Car.create(payload);
     return result;
 });
@@ -87,6 +87,9 @@ const getSingleCarFromDB = (id) => __awaiter(void 0, void 0, void 0, function* (
     return result;
 });
 const updateCarIntoDB = (id, payload, req) => __awaiter(void 0, void 0, void 0, function* () {
+    // console.log(payload, "payload");
+    // console.log(req.files, "req.files");
+    // console.log(id, "id");
     const { vehicleSpecification, features } = payload, remainingPayload = __rest(payload, ["vehicleSpecification", "features"]);
     const modifiedUpdateData = Object.assign({}, remainingPayload);
     // Handling features
@@ -102,20 +105,24 @@ const updateCarIntoDB = (id, payload, req) => __awaiter(void 0, void 0, void 0, 
         }
     }
     // Handling images if they exist in the request
-    if (req.files && req.files.images) {
-        let images = req.files.images;
+    if (req.files && req.files.carImgUrl) {
+        let images = req.files.carImgUrl;
         if (!Array.isArray(images)) {
             images = [images];
         }
-        const imageUrls = yield Promise.all(images.map((image) => __awaiter(void 0, void 0, void 0, function* () {
+        const carImgUrl = yield Promise.all(images.map((image) => __awaiter(void 0, void 0, void 0, function* () {
             const result = yield sendImageToCloudinary_1.default.uploader.upload(image.tempFilePath, {
                 folder: 'carRental/cars',
                 public_id: (0, uuid_1.v4)(),
             });
             return result.secure_url;
         })));
-        modifiedUpdateData.images = imageUrls;
+        modifiedUpdateData.carImgUrl = carImgUrl;
     }
+    else {
+        console.log("No image found, skipping image upload.");
+    }
+    // Updating the car in the database
     const result = yield car_model_1.Car.findOneAndUpdate({ _id: id }, modifiedUpdateData, {
         new: true,
         runValidators: true,
