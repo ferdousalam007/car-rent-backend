@@ -13,13 +13,13 @@ const parseData = (data: any) => {
   // Convert relevant fields to booleans
   if (parsedData.isElectric) parsedData.isElectric = parsedData.isElectric === 'true';
 
-  // Convert string to array
+
   // Helper function to clean and parse string arrays
   const cleanAndParseArray = (str: string) => {
     return str
-      .replace(/[[]]/g, '') // Remove square brackets
+      .replace(/[[\]]/g, '') // Remove square brackets from the entire string
       .split(',')
-      .map((item: string) => item.trim().replace(/["']/g, '')); // Trim and remove quotes
+      .map((item: string) => item.trim().replace(/["']/g, '')); // Trim spaces and remove quotes
   };
 
   // Convert string to array and clean brackets

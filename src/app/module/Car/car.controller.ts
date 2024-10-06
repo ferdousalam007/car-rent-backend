@@ -15,9 +15,10 @@ const createCar = catchAsync(async (req, res) => {
   });
 });
 const getAllCars = catchAsync(async (req, res) => {
-  const { name, carType, location, price } = req.query;
+  const {id, name, carType, location, price } = req.query;
 
   const result = await CarServices.getAllCarsFromDB(
+   id as string,
     name as string,
     carType as string,
     location as string,
@@ -51,6 +52,9 @@ const getSingleCar = catchAsync(async (req, res) => {
 });
 const updateCar = catchAsync(async (req, res) => {
   const { id } = req.params;
+  // console.log(id);
+  // console.log(req.body);
+  // return
   const result = await CarServices.updateCarIntoDB(id, req.body,req);
 
   sendResponse(res, {

@@ -10,6 +10,8 @@ import { verifyToken } from "./auth.constant";
 import cloudinary from "../../utils/sendImageToCloudinary";
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
 const createSignUp = async (req: any, res: any) => {
   const payload: TUser = req.body;
 
@@ -94,32 +96,36 @@ const forgotPasswordIntoDB = async (email: string) => {
     userId: user._id,
     userEmail: user.email,
   };
-  const token = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+  const token = jwt.sign(jwtPayload, process.env.JWT_ACCESS_SECRET as string, {
     expiresIn: "40m",
   });
   const transporter=nodemailer.createTransport({
     service:'gmail',
+    port: 587,  // or 465 for SSL
+    secure: false,
     auth:{
-      user:config.email,
-      pass:config.email_password
-    }
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+    },
+    logger: true,  // Enable logging
+    debug: true, 
   });
   const mailOptions={
-    from:config.email,
+    from: process.env.EMAIL,
     to:email,
     subject:'Reset your password',
-    text: `Click the following link to reset your password: ${config.reset_password_link}/${user._id}/${token}`
+    text: `Click the following link to reset your password: ${process.env.RESET_PASSWORD_LINK}/${user._id}/${token}`
   }
-  await transporter.sendMail(mailOptions,function(error:any,info:any){
-    if(error){
-      throw new AppError(httpStatus.NOT_FOUND,"Something went wrong")
-    }
-    else{
-      // eslint-disable-next-line no-console
-      console.log('Email sent: '+info.response)
-    }
-  });
+  // Step 5: Send email with error handling
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + info.response);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Something went wrong when sending the email.");
+  }
 };
+
 const resetPasswordIntoDB = async (token: string, password: string) => {
   const decoded = verifyToken(token, config.jwt_access_secret as string);
   const { userId } = decoded;

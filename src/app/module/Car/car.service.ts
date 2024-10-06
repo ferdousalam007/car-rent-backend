@@ -40,70 +40,98 @@ const createCarIntoDB = async (req: any, res: any) => {
   return result;
 };
 const getAllCarsFromDB = async (
+  id: string,
   name: string,
   carType: string,
   location: string,
   price: number
 ) => {
-  let query: any = {
+  // Initial query to filter out deleted cars
+  const query: any = {
     isDelete: { $ne: true },
   };
 
-  if (name) {
-    const searchRegex = new RegExp(name, "i");
-    query = {
-      $or: [{ name: searchRegex }],
-    };
-  }
-  if (carType) {
-    const searchRegex = new RegExp(carType, "i");
-    query = {
-      $or: [{ carType: searchRegex }],
-    };
+  // If id is provided, prioritize and search by id (ObjectId format)
+  if (id) {
+    query._id = id; // MongoDB uses _id for document IDs
+  } else {
+    // If name is provided, search by name using a regex (case-insensitive)
+    if (name) {
+      const searchRegex = new RegExp(name, "i");
+      query.$or = query.$or || []; // Initialize $or if not already present
+      query.$or.push({ name: searchRegex });
+    }
+
+    // If carType is provided, search by carType using a regex (case-insensitive)
+    if (carType) {
+      const searchRegex = new RegExp(carType, "i");
+      query.$or = query.$or || []; // Initialize $or if not already present
+      query.$or.push({ carType: searchRegex });
+    }
+
+    // If location is provided, search by location using a regex (case-insensitive)
+    if (location) {
+      const searchRegex = new RegExp(location, "i");
+      query.$or = query.$or || []; // Initialize $or if not already present
+      query.$or.push({ location: searchRegex });
+    }
+
+    // If price is greater than 0, add a price filter
+    if (price > 0) {
+      query.pricePerHour = { $lte: price };
+    }
   }
 
-  if (location) {
-    const searchRegex = new RegExp(location, "i");
-    query = {
-      $or: [{ location: searchRegex }],
-    };
-  }
-  if (price > 0) {
-    query.pricePerHour = { $lte: price };
-  }
-
+  // Fetch cars from DB using the constructed query
   const result = await Car.find(query);
   return result;
 };
+
+// const getAllCarsFromDB = async (
+//   name: string,
+//   carType: string,
+//   location: string,
+//   price: number
+// ) => {
+//   let query: any = {
+//     isDelete: { $ne: true },
+//   };
+
+//   if (name) {
+//     const searchRegex = new RegExp(name, "i");
+//     query = {
+//       $or: [{ name: searchRegex }],
+//     };
+//   }
+//   if (carType) {
+//     const searchRegex = new RegExp(carType, "i");
+//     query = {
+//       $or: [{ carType: searchRegex }],
+//     };
+//   }
+
+//   if (location) {
+//     const searchRegex = new RegExp(location, "i");
+//     query = {
+//       $or: [{ location: searchRegex }],
+//     };
+//   }
+//   if (price > 0) {
+//     query.pricePerHour = { $lte: price };
+//   }
+
+//   const result = await Car.find(query);
+//   return result;
+// };
 const getSingleCarFromDB = async (id: string) => {
   const result = await Car.findById(id);
   return result;
 };
 const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => {
-  // console.log(payload, "payload");
-  // console.log(req.files, "req.files");
-  // console.log(id, "id");
+ 
+ console.log(payload)
 
-  const { vehicleSpecification, features, ...remainingPayload } = payload;
-  const modifiedUpdateData: Record<string, unknown> = {
-    ...remainingPayload,
-  };
-
-  // Handling features
-  if (features && Object.keys(features).length) {
-    for (const [key, value] of Object.entries(features)) {
-      modifiedUpdateData[`features.${key}`] = value;
-    }
-  }
-
-  // Handling vehicleSpecification
-  if (vehicleSpecification && Object.keys(vehicleSpecification).length) {
-    for (const [key, value] of Object.entries(vehicleSpecification)) {
-      modifiedUpdateData[`vehicleSpecification.${key}`] = value;
-    }
-  }
-
-  // Handling images if they exist in the request
+  // Image upload logic
   if (req.files && req.files.carImgUrl) {
     let images = req.files.carImgUrl as any[];
     if (!Array.isArray(images)) {
@@ -119,19 +147,20 @@ const updateCarIntoDB = async (id: string, payload: Partial<TCar>, req: any) => 
         return result.secure_url;
       }),
     );
-    modifiedUpdateData.carImgUrl = carImgUrl;
+    payload.carImgUrl = carImgUrl;
   } else {
     console.log("No image found, skipping image upload.");
   }
 
   // Updating the car in the database
-  const result = await Car.findOneAndUpdate({ _id: id }, modifiedUpdateData, {
+  const result = await Car.findOneAndUpdate({ _id: id }, payload, {
     new: true,
     runValidators: true,
   });
 
   return result;
 };
+
 
 
 const deleteCarFromDB = async (id: string) => {
