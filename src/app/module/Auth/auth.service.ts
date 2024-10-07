@@ -56,7 +56,10 @@ const createSignIn = async (payload: TSignInUser) => {
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not Found");
   }
-
+const isdeleted =await User.findOne({isDeleted:true})
+  if(isdeleted){
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
+  }
   // chcek password matched
   if (!(await User.isPasswordMatched(payload?.password, user.password))) {
     throw new AppError(httpStatus.FORBIDDEN, "Password do not matched!!");
@@ -90,6 +93,10 @@ const forgotPasswordIntoDB = async (email: string) => {
  
   const user = await User.findOne({ email });
   if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
+  }
+  const isdeleted =await User.findOne({isDeleted:true});
+  if(isdeleted){
     throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
   }
   const jwtPayload = {
@@ -132,6 +139,10 @@ const resetPasswordIntoDB = async (token: string, password: string) => {
 
   const user = await User.findById(userId);
   if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
+  }
+  const isdeleted =await User.findOne({isDeleted:true})
+  if(isdeleted){
     throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
   }
   user.password = password;

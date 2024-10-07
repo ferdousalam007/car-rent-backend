@@ -18,6 +18,10 @@ const BookingCarFromDB = async (
   if (!userData) {
     throw new AppError(httpStatus.NOT_FOUND, " User not found!!");
   }
+  const isDeleted = await User.findOne({ email: user.userEmail, isDeleted: true })
+  if(isDeleted){
+    throw new AppError(httpStatus.BAD_REQUEST,"User is deleted")
+  }
   // payload.car = payload.carId;
   payload.user = userData._id;
 
